@@ -1,6 +1,9 @@
 from flask import Flask, request, jsonify
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
+import os
+import json
+import requests
 
 app = Flask(__name__)
 
@@ -59,6 +62,61 @@ def editarUsuario(id):
     return "Usuario Actualizado"
 
 
+# DELETE
+
+
+@app.route("/eliminar_usuario/<int:id>", methods=["DELETE"])
+def eliminar_usuario(id):
+    cursor = mysql.connection.cursor()
+    cursor.execute("DELETE FROM usuarios WHERE id = %s", (id,))
+    mysql.connection.commit()
+    cursor.close()
+    return "Usuario ELIMINADO", 200
+
+
+@app.route("/guardar", methods=["POST"])
+def guardar():
+    datos = request.json
+    print(datos)
+    with open("./archivo.json", "w") as json_file:
+        json.dump(datos, json_file)
+    return "informacion leida"
+
+
+@app.route("/guardar_text", methods=["POST"])
+def guardar_text():
+    data = request.form.get("text")
+    print(data)
+    with open("./archivo.txt", "w") as texto:
+        texto.write(data)
+    return "Texto Guardado"
+
+
+@app.route("/leer_json")
+def leer_json():
+    with open("./archivo.json", "r") as jsonFile:
+        data = [json.load(jsonFile)]
+        print(data)
+    return "JSON leido"
+
+
+@app.route("/leer_text")
+def leer_text():
+    with open("./archivo.txt", "r") as textFile:
+        contenido = textFile.read()
+        print(contenido)
+    return "Texto Leido"
+
+
+@app.route("/placeholder")
+def placeholder():
+    # URL de la API de jsonplaceholder
+    url = "https://jsonplaceholder.typicode.com/users"
+
+    # Realizar la solicitud GET a jsonplaceholder
+    response = requests.get(url)
+
+
 if __name__ == "__main__":
     app.run(debug=True)
 
@@ -69,5 +127,3 @@ if __name__ == "__main__":
 
 # MySQLdb.cursors.DictCursor
 # pip install flask-mysqldb
-
-
